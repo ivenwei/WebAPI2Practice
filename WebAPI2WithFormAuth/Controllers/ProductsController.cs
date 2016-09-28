@@ -9,6 +9,7 @@ using System.Net.Http;
 using System.Web.Http;
 using System.Web.Http.Description;
 using WebAPI2WithFormAuth.Models;
+using WebAPI2WithFormAuth.Models.ViewModels;
 
 namespace WebAPI2WithFormAuth.Controllers
 {
@@ -133,6 +134,49 @@ namespace WebAPI2WithFormAuth.Controllers
 
             return Ok(product);
         }
+
+        // self defined Patch action and use viewmodel to modify the specific property you want
+        // First. use Postman Get : http://localhost:49169/api/Products/1 
+        // Second. use Postman Patch modify data : http://localhost:49169/api/Products/1 
+        // Body : 
+        // {
+        //  "ProductId": 1,
+        //  "ProductName": "fleece fabric",
+        //  "Price": 55555,
+        //  "Active": true,
+        //  "Stock": 66666
+        // }
+        // Third. use use Postman Get again : http://localhost:49169/api/Products/1 
+        // And you will see the change
+        [ResponseType(typeof(Product))]
+        public IHttpActionResult PatchProduct(int id, ProductsPatchViewModel product)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var ProductItem = db.Product.Where(d => d.ProductId == id).FirstOrDefault();
+            if (ProductItem == null)
+            {
+                return NotFound();
+            }
+
+            ProductItem.Price = product.Price;
+            ProductItem.Stock = product.Stock;
+
+            try
+            {
+                db.SaveChanges();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                throw;
+            }
+
+            return StatusCode(HttpStatusCode.NoContent);
+        }
+
 
         protected override void Dispose(bool disposing)
         {
