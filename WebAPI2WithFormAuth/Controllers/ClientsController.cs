@@ -16,14 +16,25 @@ namespace WebAPI2WithFormAuth.Controllers
     {
         private FabricsEntities db = new FabricsEntities();
 
-        // GET: api/Clients
+        public ClientsController()
+        {
+            db.Configuration.LazyLoadingEnabled = false;
+        }
+
+        // GET: api/Clients  orignal URL: http://localhost:49169/api/clients
+        // Use route attribute to set the new URL of WebAPI
+        // PostMan test new URL use get method : http://localhost:49169/clients
+        [Route("clients")]
         public IQueryable<Client> GetClient()
         {
             return db.Client;
         }
 
-        // GET: api/Clients/5
+        // GET: api/Clients/5  orignal URL: http://localhost:49169/api/clients/1
+        // Use route attribute to set the new URL of WebAPI
+        // PostMan test new URL use get method : http://localhost:49169/clients/1
         [ResponseType(typeof(Client))]
+        [Route("clients/{id}")]
         public IHttpActionResult GetClient(int id)
         {
             Client client = db.Client.Find(id);
@@ -34,6 +45,52 @@ namespace WebAPI2WithFormAuth.Controllers
 
             return Ok(client);
         }
+
+        //self define route attribute : Input client id to find order table data with this id
+        //PostMan test URL use get method : http://localhost:49169/clients/1/orders
+        [Route("clients/{id}/orders")]
+        public IHttpActionResult GetClientOrders(int id)
+        {
+            var orders = db.Order.Where(d => d.ClientId == id);
+            return Ok(orders);
+        }
+
+        //self define route attribute : Input client id to find all orders and selected by input order id
+        //PostMan test URL use get method : http://localhost:49169/clients/1/orders/182
+        [Route("clients/{ClientId}/orders/{OrderId}")]
+        public IHttpActionResult GetClientOrders(int ClientId, int OrderId)
+        {
+            var order = db.Order.Where(d => d.ClientId == ClientId && d.OrderId == OrderId).FirstOrDefault();
+            if (order == null)
+            {
+                return NotFound();
+            }
+            return Ok(order);
+        }
+
+
+        //self define route attribute : Input client id to find all orders and selected where OrderStatus is pending
+        //PostMan test URL use get method : http://localhost:49169/clients/1/orders/pending
+        [Route("clients/{id}/orders/pending")]
+        public IHttpActionResult GetClientOrdersPending(int id)
+        {
+            var orders = db.Order.Where(p => p.ClientId == id && p.OrderStatus == "P");
+            return Ok(orders);
+        }
+
+        //self define route : Input client id to find all orders and selected by input date
+        //PostMan test URL use get method : http://localhost:49169/clients/1/orders/2001/11/25
+        [Route("clients/{id}/orders/{*date}")]
+        public IHttpActionResult GetClientOrdersByDate(int id, DateTime date)
+        {
+            var orders = db.Order.Where(p => p.ClientId == id
+                && p.OrderDate.Value.Year == date.Year
+                && p.OrderDate.Value.Month == date.Month
+                && p.OrderDate.Value.Day == date.Day);
+
+            return Ok(orders);
+        }
+
 
         // PUT: api/Clients/5
         [ResponseType(typeof(void))]
