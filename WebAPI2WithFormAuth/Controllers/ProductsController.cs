@@ -8,11 +8,13 @@ using System.Net;
 using System.Net.Http;
 using System.Web.Http;
 using System.Web.Http.Description;
+using WebAPI2WithFormAuth.ActionFilters;
 using WebAPI2WithFormAuth.Models;
 using WebAPI2WithFormAuth.Models.ViewModels;
 
 namespace WebAPI2WithFormAuth.Controllers
 {
+    [ValidateModel]
     public class ProductsController : ApiController
     {
         private FabricsEntities db = new FabricsEntities();
@@ -60,11 +62,6 @@ namespace WebAPI2WithFormAuth.Controllers
         [ResponseType(typeof(void))]
         public IHttpActionResult PutProduct(int id, Product product)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
             if (id != product.ProductId)
             {
                 return BadRequest();
@@ -105,11 +102,6 @@ namespace WebAPI2WithFormAuth.Controllers
         [ResponseType(typeof(Product))]
         public IHttpActionResult PostProduct(Product product)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
             db.Product.Add(product);
             db.SaveChanges();
 
@@ -151,11 +143,6 @@ namespace WebAPI2WithFormAuth.Controllers
         [ResponseType(typeof(Product))]
         public IHttpActionResult PatchProduct(int id, ProductsPatchViewModel product)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
             var ProductItem = db.Product.Where(d => d.ProductId == id).FirstOrDefault();
             if (ProductItem == null)
             {

@@ -8,10 +8,12 @@ using System.Net;
 using System.Net.Http;
 using System.Web.Http;
 using System.Web.Http.Description;
+using WebAPI2WithFormAuth.ActionFilters;
 using WebAPI2WithFormAuth.Models;
 
 namespace WebAPI2WithFormAuth.Controllers
 {
+    [ValidateModel]
     public class ClientsController : ApiController
     {
         private FabricsEntities db = new FabricsEntities();
@@ -96,11 +98,6 @@ namespace WebAPI2WithFormAuth.Controllers
         [ResponseType(typeof(void))]
         public IHttpActionResult PutClient(int id, Client client)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
             if (id != client.ClientId)
             {
                 return BadRequest();
@@ -131,11 +128,6 @@ namespace WebAPI2WithFormAuth.Controllers
         [ResponseType(typeof(Client))]
         public IHttpActionResult PostClient(Client client)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
             db.Client.Add(client);
             db.SaveChanges();
 
