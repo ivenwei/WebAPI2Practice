@@ -13,6 +13,12 @@ using WebAPI2WithFormAuth.Models;
 
 namespace WebAPI2WithFormAuth.Controllers
 {
+
+    //If you don't login first you will no access right of ClientsController
+    //If want to test the webAPi please go to http://localhost:49169/Home/Login 
+    //After Login you can go back to PostMan , and install interceptor of postman package
+    //After install interceptor finish , the webapi can access by login person
+    [Authorize]
     [ValidateModel]
     public class ClientsController : ApiController
     {
